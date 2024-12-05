@@ -1,0 +1,86 @@
+# Import necessary libraries
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.feature_selection import RFE
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
+from sklearn.metrics import (
+    classification_report, confusion_matrix, roc_auc_score, roc_curve
+)
+
+
+
+import pandas as pd
+import os
+
+# Check current working directory
+print("Current working directory:", os.getcwd())
+
+try:
+    data = pd.read_csv('heart_csv.csv')
+    print(data.head())
+except FileNotFoundError:
+    print("The file 'heart.csv' was not found in the './dataset/' directory.")
+except Exception as e:
+    print("An error occurred:", e)
+print(data.head())  # View the first 5 rows
+print(data.info())  # Check data types and non-null values
+print(data.describe())  # Get numerical statistics
+print(data.isnull().sum())  # Check missing values in each column
+#checking duplicate data
+print(data.duplicated().sum())  # Count duplicates
+data.drop_duplicates(inplace=True)  # Remove duplicates
+
+
+#doing feature selection using techniques like Correlation Matrix or Recursive Feature Elimination (RFE) to find important features.
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(10, 8))
+sns.heatmap(data.corr(), annot=True, cmap="coolwarm")
+plt.show()
+
+from sklearn.feature_selection import RFE
+from sklearn.ensemble import RandomForestClassifier
+
+X = data.drop('target', axis=1)  
+y = data['target']
+
+model = RandomForestClassifier()
+selector = RFE(model, n_features_to_select=5)  # Select top 5 features
+selector.fit(X, y)
+
+print(selector.support_)  # True indicates selected features
+print(X.columns[selector.support_])  # Names of selected features
+
+#data testing
+
+from sklearn.model_selection import train_test_split
+
+X = data.drop('target', axis=1)  # Replace 'target' with your label column
+y = data['target']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+#Apply Machine Learning Models
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+
+model = RandomForestClassifier()
+model.fit(X_train, y_train)
+
+# Make predictions
+y_pred = model.predict(X_test)
+
+# Evaluate the model
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Accuracy: {accuracy * 100:.2f}%")
+
+
+
+
